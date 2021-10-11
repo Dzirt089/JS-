@@ -94,8 +94,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // Modal
 
     const modalTrigger = document.querySelectorAll('[data-modal]'),
-          modal = document.querySelector('.modal'),
-          modalCloseBtn = document.querySelector('[data-close]');
+          modal = document.querySelector('.modal');
 
     function modalOpen() {
         modal.classList.add('show');
@@ -113,11 +112,9 @@ window.addEventListener('DOMContentLoaded', () => {
     modalTrigger.forEach(btn => {
         btn.addEventListener('click', modalOpen);
     });
-    
-    modalCloseBtn.addEventListener('click', modalClose);
 
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
+        if (e.target === modal || e.target.getAttribute('data-close') == '') {
         modalClose();
         }
     });
@@ -128,7 +125,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-   const modalInterval = setTimeout(modalOpen, 5000);
+   const modalInterval = setTimeout(modalOpen, 50000);
 
     function showModalByScroll (){
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight){
@@ -210,4 +207,87 @@ window.addEventListener('DOMContentLoaded', () => {
         '.menu .container',
         'menu__item'
     ).render();
+
+    // Forms
+
+    const forms = document.querySelectorAll('form');
+
+    const message = {    // Храним в этом объекта мини сообщения по состоянию выполнениия запроса
+        loading: 'img/form/spinner.svg',
+        success: 'Спасибо! Скоро мы с вами свяжемся',
+        failure: 'Что-то пошло не так'
+    };
+
+    // Теперь мы должны взять все наши формы и подвязать их к нашей фукции postData()
+    forms.forEach(item => {
+        postData(item);
+    });
+
+// Сейчас на каждую форму у нас подвязана функция postData, которая будет обработчиком события при отправке (нажатии кнопки отправить ("submit"))
+
+    function postData(form) {     //Берём все наши формы, чтобы не собирать по отдельности в ручную.
+        form.addEventListener('submit' , (e) => {
+            e.preventDefault(); //отменяем стандартное поведение браузера, а именно перезагрузка стр при отправке формы
+            const statusMessage = document.createElement('img');
+            statusMessage.src = message.loading;
+            statusMessage.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `;
+            //form.append(statusMessage);// К форме мы добавляем наше сообщение
+            form.insertAdjacentElement('afterend', statusMessage); // этот метод позволяет добавить любой элемент в любую точку нашей верстки. И не ломает наш флекс
+            // с помощью FormData собираем все формы. И при помощи fetch-а мы просто берем и отправляем эти данные
+            const formData = new FormData(form);
+            //в верстке написаны инпуты, и всегда должен присутствовать атрибут name. Иначе удет куча ошибок и FormData не сможет отработать правильно.
+
+            const object = {};
+            formData.forEach(function(value, key) {
+                object[key] = value;
+            });
+
+            fetch('server.php', {
+                method: "POST",
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                body: JSON.stringify(object)
+            })
+            .then(data => data.text())
+            .then(data => {
+                console.log(data);
+                showThanksModal(message.success);
+                statusMessage.remove();
+            }).catch(() => {
+                showThanksModal(message.failure);                
+            }).finally(() => {
+                form.reset();
+            });
+        });
+    }
+
+    function showThanksModal(message) {
+        const prevModalDialog = document.querySelector('.modal__dialog');
+
+        prevModalDialog.classList.add('hide');
+        modalOpen();
+
+        const thanksModal = document.createElement('div');
+        thanksModal.classList.add('modal__dialog');
+        thanksModal.innerHTML = `
+            <div class ="modal__content">
+                <div class="modal__close" date-close>&times;</div>
+                <div class="modal__title">${message}</div>
+            </div>
+        `;
+
+        document.querySelector('.modal').append(thanksModal);
+        setTimeout(() => {
+            thanksModal.remove();
+            prevModalDialog.classList.add('show');
+            prevModalDialog.classList.remove('hide');
+            modalClose();
+        }, 4000);
+    }
+    //Идёт простая инструкция, показать блок, создать блок, наполнить его контентом, и т.д.
+
 });
