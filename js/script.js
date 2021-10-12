@@ -289,7 +289,16 @@ window.addEventListener('DOMContentLoaded', () => {
         }, 4000);
     }
     //Идёт простая инструкция, показать блок, создать блок, наполнить его контентом, и т.д.
-    fetch('db.json')
+    fetch('http://localhost:3000/menu')
         .then(data => data.json())
         .then(res => console.log(res));
+    
+// Во-первых, вам нужно проверить, установлен глобально или нет json-server. или вы можете установить его глобально
+
+// npm install -g json-server
+// Если вы устанавливаете его локально в своем проекте, используйте npx для его запуска
+
+// npx json-server --watch db.json
+
+
 });
