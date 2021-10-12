@@ -2,6 +2,8 @@
 
 # dependecies
 /node_modules
+/.php
+.php.js
 
 # testing
 /coverage

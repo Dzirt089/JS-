@@ -1,0 +1,22 @@
+{
+  "name": "food",
+  "version": "1.0.0",
+  "description": "Проект, с готовой версткой (html & css) , оживляю с помощью JS на практике.\r OpenServer с server.php Тестирую POST & GET запросы",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dzirt089/JS-.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dzirt089/JS-/issues"
+  },
+  "homepage": "https://github.com/Dzirt089/JS-#readme",
+  "devDependencies": {
+    "json-server": "^0.17.0"
+  }
+}

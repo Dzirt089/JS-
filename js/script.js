@@ -289,5 +289,7 @@ window.addEventListener('DOMContentLoaded', () => {
         }, 4000);
     }
     //Идёт простая инструкция, показать блок, создать блок, наполнить его контентом, и т.д.
-
+    fetch('db.json')
+        .then(data => data.json())
+        .then(res => console.log(res));
 });
