@@ -322,6 +322,93 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // npx json-server --watch db.json
 
+    const slides = document.querySelectorAll('.offer__slide'),
+          prev = document.querySelector('.offer__slider-prev'),
+          next = document.querySelector('.offer__slider-next'),
+          current = document.querySelector('#current'),
+          total = document.querySelector('#total'),
+          slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+          slidesField = document.querySelector('.offer__slider-inner'),
+          width = window.getComputedStyle(slidesWrapper).width;
 
+    let slideIndex = 1;
 
+    //инициализируем общий счетчик слайдов (перехват данных html) и приписываем 0, если значение меньше 10
+    if(slides.length < 10){
+        total.textContent = `0${slides.length}`;
+    }else{
+        total.textContent = slides.length;
+    }
+
+    //инициализируем текущий счетчик слайдов (перехват данных html) и приписываем 0, если значение меньше 10
+    if(slideIndex < 10) {
+        current.textContent = `0${slideIndex}`;
+    }else{
+        current.textContent = slideIndex;
+    }
+
+    //Устанавливаем общую ширину блоку, из всех слайдов. Т.к. это стили, то % прописываем в конце
+    slidesField.style.width = 100 * slides.length + '%';
+
+    slidesField.style.display = 'flex'; //для выстраивания в горизонтальную линию блоков
+    slidesField.style.transition = '0.5s all'; //для плавного перехода слайда
+
+    //Устанавливаем общую ширину каждому слайду, чтобы не было ннекорретных переключений картинок
+    slides.forEach(slide => {
+        slide.style.width = width;
+    });
+
+    slidesWrapper.style.overflow = 'hidden'; //Делаем невидимым содержание вне области видимости "окна" слайдов (карусели из slidesField)
+
+    let offset = 0; //Создаем новую переменную, служащую отступом у слайдов (насколько отступать при помощи transform вправо или влево)
+
+    next.addEventListener('click', () => {
+        if(offset == +width.slice(0, width.length - 2) * (slides.length - 1)){
+            offset = 0;
+        }else{
+            offset += +width.slice(0, width.length - 2);
+        }
+
+        //Делаем счетчик текущего слайда
+        if(slideIndex == slides.length) {
+            slideIndex = 1;
+        } else {
+            slideIndex++;
+        }
+
+        //Проверка текущего слайда на добавление нуля перед одиночной цифрой (04)
+        if(slideIndex < 10) {
+            current.textContent = `0${slideIndex}`;
+        }else{
+            current.textContent = slideIndex;
+        }
+
+        //При помощи transform мы сдвигаем по оси Х нашу карусель слайдов (slidesField) в стилях 'translateX', вправо или влево. Значение в "px"
+        slidesField.style.transform = `translateX(-${offset}px)`;
+    });
+
+    prev.addEventListener('click', () => {
+        if(offset == 0){
+            offset = +width.slice(0, width.length - 2) * (slides.length - 1)
+        }else{
+            offset -= +width.slice(0, width.length - 2);
+        }
+
+        //Делаем счетчик текущего слайда
+        if(slideIndex == 1) {
+            slideIndex = slides.length;
+        } else {
+            slideIndex--;
+        }
+
+        //Проверка текущего слайда на добавление нуля перед одиночной цифрой (04)
+        if(slideIndex < 10) {
+            current.textContent = `0${slideIndex}`;
+        }else{
+            current.textContent = slideIndex;
+        }
+
+        //При помощи transform мы сдвигаем по оси Х нашу карусель слайдов (slidesField) в стилях 'translateX', вправо или влево. Значение в "px"
+        slidesField.style.transform = `translateX(-${offset}px)`;
+    });
 });
