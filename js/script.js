@@ -411,4 +411,5 @@ window.addEventListener('DOMContentLoaded', () => {
         //При помощи transform мы сдвигаем по оси Х нашу карусель слайдов (slidesField) в стилях 'translateX', вправо или влево. Значение в "px"
         slidesField.style.transform = `translateX(-${offset}px)`;
     });
+    
 });
