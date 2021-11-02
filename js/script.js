@@ -323,6 +323,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // npx json-server --watch db.json
 
     const slides = document.querySelectorAll('.offer__slide'),
+          slider = document.querySelector('.offer__slider'),
           prev = document.querySelector('.offer__slider-prev'),
           next = document.querySelector('.offer__slider-next'),
           current = document.querySelector('#current'),
@@ -332,6 +333,8 @@ window.addEventListener('DOMContentLoaded', () => {
           width = window.getComputedStyle(slidesWrapper).width;
 
     let slideIndex = 1;
+
+    
 
     //инициализируем общий счетчик слайдов (перехват данных html) и приписываем 0, если значение меньше 10
     if(slides.length < 10){
@@ -357,6 +360,57 @@ window.addEventListener('DOMContentLoaded', () => {
     slides.forEach(slide => {
         slide.style.width = width;
     });
+    
+    const dots = []; //Массив будущих точек навигации слайдов
+    slider.style.position = 'relative'; //Для абсолютного позиционирования точек внутри самого слайдера
+    const indicators = document.createElement('ol'); //Создаём оболочку точкам и CSS свойства здесь
+    indicators.classList.add('carousel-indicator');
+    indicators.style.cssText = `
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 15;
+        display: flex;
+        justify-content: center;
+        margin-right: 15%;
+        margin-left: 15%;
+        list-style: none;
+    `;
+    slider.append(indicators);//Добавляем оболучку точек на слайдер
+
+    //Циклом созд точки, равные кол-ву слайдев
+    for (let i = 0; i < slides.length; i++) {
+        const dot = document.createElement('li');
+        dot.setAttribute('data-slide-to', i + 1);//добавляем аттрибут с индентификатором (порядковым числом)
+        dot.style.cssText = `
+            box-sizing: content-box;
+            flex: 0 1 auto;
+            width: 30px;
+            height: 6px;
+            margin-right: 3px;
+            margin-left: 3px;
+            cursor: pointer;
+            background-color: #fff;
+            background-clip: padding-box;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            opacity: .5;
+            transition: opacity .6s ease;
+        `;
+        //Инициализируем класс активности при загрузке страницы
+        if (i == 0){
+            dot.style.opacity = 1;
+        }
+
+        indicators.append(dot);//Добавляем в оболочку точек на слайде
+        dots.push(dot);//Добавляем в массив
+    }
+
+    function activeDot(dots) {
+        dots.forEach(dot => dot.style.opacity = '0.5');
+        dots[slideIndex - 1].style.opacity = 1;
+    }
 
     slidesWrapper.style.overflow = 'hidden'; //Делаем невидимым содержание вне области видимости "окна" слайдов (карусели из slidesField)
 
@@ -385,6 +439,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
         //При помощи transform мы сдвигаем по оси Х нашу карусель слайдов (slidesField) в стилях 'translateX', вправо или влево. Значение в "px"
         slidesField.style.transform = `translateX(-${offset}px)`;
+
+        dots.forEach(dot => dot.style.opacity = '.5');
+        dots[slideIndex - 1].style.opacity = 1;
     });
 
     prev.addEventListener('click', () => {
@@ -410,6 +467,25 @@ window.addEventListener('DOMContentLoaded', () => {
 
         //При помощи transform мы сдвигаем по оси Х нашу карусель слайдов (slidesField) в стилях 'translateX', вправо или влево. Значение в "px"
         slidesField.style.transform = `translateX(-${offset}px)`;
+
+        activeDot(dots);
     });
-    
+
+    //Добавляем функциональности точкам, чтобы не было баггов следим за корректными изменениями при использовании навигации слайдов
+    dots.forEach(dot => {
+        dot.addEventListener('click', (e) => {
+            const slideTo = e.target.getAttribute('data-slide-to');
+            slideIndex = slideTo; 
+            offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+            slidesField.style.transform = `translateX(-${offset}px)`;
+
+            if (slides.length < 10) {
+                current.textContent = `0${slideIndex}`;
+            }else{
+                current.textContent = slideIndex;
+            }
+
+            activeDot(dots);
+        });
+    });
 });
