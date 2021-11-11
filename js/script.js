@@ -40,7 +40,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // Timer
-    const deadline = '2021-11-11';
+    const deadline = '2021-12-11';
 
     function getTimeRemaining(endtime) {
         const t = Date.parse(endtime) - Date.parse(new Date()),
@@ -86,7 +86,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
             if(t.total <= 0) {
                 clearInterval(timeInterval);
+                days.innerHTML = getZero(0);
+                hours.innerHTML = getZero(0);
+                minutes.innerHTML = getZero(0);
+                seconds.innerHTML = getZero(0);
             }
+            
         }
     }
     setClock('.timer', deadline);
@@ -361,9 +366,9 @@ window.addEventListener('DOMContentLoaded', () => {
         slide.style.width = width;
     });
     
-    const dots = []; //Массив будущих точек навигации слайдов
-    slider.style.position = 'relative'; //Для абсолютного позиционирования точек внутри самого слайдера
-    const indicators = document.createElement('ol'); //Создаём оболочку точкам и CSS свойства здесь
+    const dots = [];
+    slider.style.position = 'relative';
+    const indicators = document.createElement('ol');
     indicators.classList.add('carousel-indicator');
     indicators.style.cssText = `
         position: absolute;
@@ -377,12 +382,11 @@ window.addEventListener('DOMContentLoaded', () => {
         margin-left: 15%;
         list-style: none;
     `;
-    slider.append(indicators);//Добавляем оболучку точек на слайдер
+    slider.append(indicators);
 
-    //Циклом созд точки, равные кол-ву слайдев
     for (let i = 0; i < slides.length; i++) {
         const dot = document.createElement('li');
-        dot.setAttribute('data-slide-to', i + 1);//добавляем аттрибут с индентификатором (порядковым числом)
+        dot.setAttribute('data-slide-to', i + 1);
         dot.style.cssText = `
             box-sizing: content-box;
             flex: 0 1 auto;
@@ -398,13 +402,13 @@ window.addEventListener('DOMContentLoaded', () => {
             opacity: .5;
             transition: opacity .6s ease;
         `;
-        //Инициализируем класс активности при загрузке страницы
+
         if (i == 0){
             dot.style.opacity = 1;
         }
 
-        indicators.append(dot);//Добавляем в оболочку точек на слайде
-        dots.push(dot);//Добавляем в массив
+        indicators.append(dot);
+        dots.push(dot);
     }
 
     function activeDot(dots) {
@@ -416,11 +420,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
     let offset = 0; //Создаем новую переменную, служащую отступом у слайдов (насколько отступать при помощи transform вправо или влево)
 
+    function deleteNotDigits(text) {
+        let textCurrent = +text.replace(/\D/g, '');
+        return textCurrent;
+    }
+    
     next.addEventListener('click', () => {
-        if(offset == +width.slice(0, width.length - 2) * (slides.length - 1)){
+        if(offset == deleteNotDigits(width) * (slides.length - 1)){
             offset = 0;
         }else{
-            offset += +width.slice(0, width.length - 2);
+            offset += deleteNotDigits(width);
         }
 
         //Делаем счетчик текущего слайда
@@ -446,9 +455,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     prev.addEventListener('click', () => {
         if(offset == 0){
-            offset = +width.slice(0, width.length - 2) * (slides.length - 1)
+            offset = deleteNotDigits(width) * (slides.length - 1)
         }else{
-            offset -= +width.slice(0, width.length - 2);
+            offset -= deleteNotDigits(width);
         }
 
         //Делаем счетчик текущего слайда
@@ -471,12 +480,11 @@ window.addEventListener('DOMContentLoaded', () => {
         activeDot(dots);
     });
 
-    //Добавляем функциональности точкам, чтобы не было баггов следим за корректными изменениями при использовании навигации слайдов
     dots.forEach(dot => {
         dot.addEventListener('click', (e) => {
             const slideTo = e.target.getAttribute('data-slide-to');
-            slideIndex = slideTo; 
-            offset = +width.slice(0, width.length - 2) * (slideTo - 1);
+            slideIndex = slideTo;
+            offset = deleteNotDigits(width) * (slideTo - 1);
             slidesField.style.transform = `translateX(-${offset}px)`;
 
             if (slides.length < 10) {
